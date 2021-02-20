@@ -1,7 +1,8 @@
 import os
 import pika
 import sys
-
+import json
+import numpy as np
 
 def main():
     connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
@@ -10,7 +11,9 @@ def main():
     channel.queue_declare(queue='baka')
 
     def callback(ch, method, properties, body):
-        print(" [x] baka >~< Received %r" % body)
+       # print(" [x] baka >~< Received", json.loads(body))
+        array = eval(json.loads(body)["detections"])
+        print("\n\n\n", np.asarray(array[0]), np.asarray(array[0]).shape)
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
     channel.basic_consume(queue='baka', on_message_callback=callback)
